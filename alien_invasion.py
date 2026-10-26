@@ -1,6 +1,6 @@
 import pygame
 from pygame.sprite import Group
-
+from starfield import Starfield
 from settings import Settings
 from game_stats import GameStats
 from scoreboard import Scoreboard
@@ -28,22 +28,29 @@ def run_game():
     ship = Ship(ai_settings, screen)
     bullets = Group()
     aliens = Group()
+    
+    alien_bullets = Group() 
 
-    # 创建外星人群
-    gf.create_fleet(ai_settings, screen, ship, aliens)
+    explosions = Group() 
+    starfield = Starfield(screen)
 
     # 开始游戏的主循环
     while True:
-        # 监听事件
-        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets)
+        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, alien_bullets)
         
+        starfield.update()
+
         if stats.game_active:
-            # 更新位置
             ship.update()
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets)
-            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets)
+            
+            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
+            
+            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, alien_bullets)
+            
+            gf.update_alien_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, alien_bullets)
+            
+            explosions.update()
         
-        # 绘制屏幕
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, alien_bullets, play_button, explosions, starfield)
 
 run_game()

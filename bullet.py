@@ -8,7 +8,6 @@ class Bullet(Sprite):
         super(Bullet, self).__init__()
         self.screen = screen
 
-        # 在(0,0)处创建一个表示子弹的矩形，再设置正确的位置
         self.rect = pygame.Rect(0, 0, ai_settings.bullet_width, ai_settings.bullet_height)
         self.rect.centerx = ship.rect.centerx
         self.rect.top = ship.rect.top
@@ -26,4 +25,31 @@ class Bullet(Sprite):
 
     def draw_bullet(self):
         """在屏幕上绘制子弹"""
-        pygame.draw.rect(self.screen, self.color, self.rect)
+        glow_rect = pygame.Rect(self.rect.x - 2, self.rect.y, self.rect.width + 4, self.rect.height)
+        pygame.draw.rect(self.screen, (100, 200, 255), glow_rect, border_radius=3)
+        pygame.draw.rect(self.screen, (255, 255, 255), self.rect, border_radius=2)
+
+class AlienBullet(Sprite):
+    """外星人发射的子弹类"""
+    def __init__(self, ai_settings, screen, alien):
+        super(AlienBullet, self).__init__()
+        self.screen = screen
+
+        # 创建子弹矩形 (设置在外星人的底部中央)
+        self.rect = pygame.Rect(0, 0, ai_settings.alien_bullet_width, ai_settings.alien_bullet_height)
+        self.rect.centerx = alien.rect.centerx
+        self.rect.bottom = alien.rect.bottom
+
+        # 存储小数位置
+        self.y = float(self.rect.y)
+        self.color = ai_settings.alien_bullet_color
+        self.speed_factor = ai_settings.alien_bullet_speed_factor
+
+    def update(self):
+        """向下移动子弹"""
+        self.y += self.speed_factor
+        self.rect.y = self.y
+
+    def draw_bullet(self):
+        """绘制子弹"""
+        pygame.draw.rect(self.screen, self.color, self.rect, border_radius=2)

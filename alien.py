@@ -1,46 +1,32 @@
 import pygame
 from pygame.sprite import Sprite
+import random  # 导入随机模块
 
 class Alien(Sprite):
     """表示单个外星人的类"""
-
     def __init__(self, ai_settings, screen):
         """初始化外星人并设置其起始位置"""
         super(Alien, self).__init__()
         self.screen = screen
         self.ai_settings = ai_settings
 
-        # 加载外星人图像，并设置其rect属性
+        # 加载图像并缩放
         image_raw = pygame.image.load('images/alien.bmp')
         self.image = pygame.transform.scale(image_raw, (60, 60))
-
         self.rect = self.image.get_rect()
+        self.screen_rect = screen.get_rect()
 
-        # 每个外星人最初都在屏幕左上角附近
-        self.rect.x = self.rect.width
-        self.rect.y = self.rect.height
+        # 随机生成X坐标，Y坐标在屏幕上方（负值，表示还没进入屏幕）
+        self.rect.x = random.randint(-200, self.screen_rect.width - self.rect.width)
+        self.rect.y = -self.rect.height - random.randint(0, 200) # 随机在屏幕上方不同高度准备
 
-        # 存储外星人的准确位置（为以后移动做准备）
-        self.x = float(self.rect.x)
-        self.ai_settings = ai_settings
+        # 每个外星人可以有略微不同的下落速度，增加随机性
+        self.speed = self.ai_settings.alien_speed_factor * random.uniform(0.5, 1.0)
+        
+        # 存储准确位置（小数）
+        self.y = float(self.rect.y)
 
     def update(self):
-        """根据设置的移动速度向右或向左移动外星人"""
-
-        # 用 x 的小数值来移动，保证平滑
-        self.x += (self.ai_settings.alien_speed_factor * 
-                   self.ai_settings.fleet_direction)
-        self.rect.x = self.x
-
-    def check_edges(self):
-        """如果外星人位于屏幕边缘，就返回True"""
-        
-        screen_rect = self.screen.get_rect()
-        if self.rect.right >= screen_rect.right:
-            return True
-        elif self.rect.left <= 0:
-            return True
-
-    def blitme(self):
-        """在指定位置绘制外星人"""
-        self.screen.blit(self.image, self.rect)
+        """向下移动外星人"""
+        self.y += self.speed
+        self.rect.y = self.y
